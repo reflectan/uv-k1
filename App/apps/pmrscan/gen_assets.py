@@ -4,12 +4,12 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from app_assets import Assets
 
-# PMR446 Frequencies in 10 Hz units
+# PMR446 Frequencies in 10 Hz units (Corrected)
 PMR_FREQS = [
-    446006250, 446018750, 446031250, 446043750,
-    446056250, 446068750, 446081250, 446093750,
-    446106250, 446118750, 446131250, 446143750,
-    446156250, 446168750, 446181250, 446193750
+    44600625, 44601875, 44603125, 44604375,
+    44605625, 44606875, 44608125, 44609375,
+    44610625, 44611875, 44613125, 44614375,
+    44615625, 44616875, 44618125, 44619375
 ]
 
 def build():
