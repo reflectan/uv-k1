@@ -65,9 +65,9 @@ static void calibrate_noise_floor(const app_api_t *api, int16_t *noise_floor_out
     int16_t min_rssi = 0;
     int16_t noise_floor = -105;
 
-    for (uint8_t ch = 0; ch < ASSET_PMR_CHANNELS; ch++) {
+    for (uint8_t ch = 0; ch < PMR_CHANNELS; ch++) {
         uint32_t calib_freq = 0;
-        api->asset_read(ASSET_PMR_FREQS + (ch * sizeof(uint32_t)), &calib_freq, sizeof(calib_freq));
+        api->asset_read(PMR_FREQS + (ch * sizeof(uint32_t)), &calib_freq, sizeof(calib_freq));
 
         set_frequency(api, calib_freq);
         api->delay_ms(3);
@@ -115,7 +115,7 @@ void app_main(const app_api_t *api) {
     api->set_af(APP_AF_MUTE);
     api->audio_path(false);
 
-    api->asset_read(ASSET_T_TITLE, title_buf, sizeof(title_buf));
+    api->asset_read(T_TITLE, title_buf, sizeof(title_buf));
 
     calibrate_noise_floor(api, &noise_floor);
     format_dbm(noise_floor, nf_buf, sizeof(nf_buf));
@@ -139,7 +139,7 @@ void app_main(const app_api_t *api) {
 
         if (state == SCAN_ACTIVE) {
             uint32_t freq_10hz = 0;
-            api->asset_read(ASSET_PMR_FREQS + (current_channel * sizeof(uint32_t)), &freq_10hz, sizeof(freq_10hz));
+            api->asset_read(PMR_FREQS + (current_channel * sizeof(uint32_t)), &freq_10hz, sizeof(freq_10hz));
 
             set_frequency(api, freq_10hz);
             api->delay_ms(3);
@@ -152,7 +152,7 @@ void app_main(const app_api_t *api) {
                 api->audio_path(true);
             } else {
                 current_channel++;
-                if (current_channel >= ASSET_PMR_CHANNELS) {
+                if (current_channel >= PMR_CHANNELS) {
                     current_channel = 0;
                 }
             }
@@ -164,7 +164,7 @@ void app_main(const app_api_t *api) {
         my_memset(api->fb, 0, 7 * 128);
 
         format_channel(current_channel, ch_buf, sizeof(ch_buf));
-        api->asset_read(state == SCAN_ACTIVE ? ASSET_T_SCANNING : ASSET_T_PAUSED, status_buf, sizeof(status_buf));
+        api->asset_read(state == SCAN_ACTIVE ? T_SCANNING : T_PAUSED, status_buf, sizeof(status_buf));
         format_dbm(signal_dbm, rssi_buf, sizeof(rssi_buf));
 
         api->print_normal(title_buf, 0, 127, 0);
