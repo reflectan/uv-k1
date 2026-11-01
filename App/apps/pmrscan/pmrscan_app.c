@@ -1,5 +1,5 @@
 #include "app_api.h"
-#include "pmrscan_assets.h"
+#include "pmrscan_assets.h" 
 
 typedef enum {
     SCAN_IDLE,
@@ -21,65 +21,37 @@ static void clear_buffer(char *buf, uint32_t len) {
 }
 
 static void format_dbm(int16_t dbm, char *buf, uint32_t buf_len) {
-    if (buf == NULL || buf_len == 0) {
-        return;
-    }
+    if (buf == NULL || buf_len < 8) return;
 
-    int16_t abs_dbm = (dbm < 0) ? (int16_t)-dbm : dbm;
-    uint8_t hundreds = (uint8_t)(abs_dbm / 100);
-    uint8_t tens = (uint8_t)((abs_dbm % 100) / 10);
-    uint8_t ones = (uint8_t)(abs_dbm % 10);
+    int16_t val = (dbm < 0) ? -dbm : dbm; 
+    uint8_t hundreds = 0, tens = 0;
 
+    while (val >= 100) { val -= 100; hundreds++; }
+    while (val >= 10) { val -= 10; tens++; }
+    
     uint8_t i = 0;
-
-    if (dbm < 0 && i + 1 < buf_len) {
-        buf[i++] = '-';
-    }
-
-    if (hundreds > 0 && i + 1 < buf_len) {
-        buf[i++] = (char)('0' + hundreds);
-    }
-
-    if ((tens > 0 || hundreds > 0) && i + 1 < buf_len) {
-        buf[i++] = (char)('0' + tens);
-    }
-
-    if (i + 1 < buf_len) {
-        buf[i++] = (char)('0' + ones);
-    }
-
-    if (i + 4 < buf_len) {
-        buf[i++] = ' ';
-        buf[i++] = 'd';
-        buf[i++] = 'B';
-        buf[i++] = 'm';
-    }
-
-    if (i < buf_len) {
-        buf[i] = '\0';
-    } else {
-        buf[buf_len - 1] = '\0';
-    }
+    if (dbm < 0) buf[i++] = '-';
+    if (hundreds > 0) buf[i++] = '0' + hundreds;
+    buf[i++] = '0' + tens;
+    buf[i++] = '0' + val;
+    buf[i++] = ' '; buf[i++] = 'd'; buf[i++] = 'B'; buf[i++] = 'm';
+    buf[i] = '\0';
 }
 
 static void format_channel(uint8_t channel, char *buf, uint32_t buf_len) {
-    if (buf == NULL || buf_len == 0) {
-        return;
-    }
-
+    if (buf == NULL || buf_len < 8) return;
+    
     uint8_t display_ch = channel + 1;
-
-    if (buf_len >= 8) {
-        buf[0] = 'C';
-        buf[1] = 'H';
-        buf[2] = ':';
-        buf[3] = ' ';
-        buf[4] = '0' + (display_ch / 10);
-        buf[5] = '0' + (display_ch % 10);
-        buf[6] = '\0';
+    buf[0] = 'C'; buf[1] = 'H'; buf[2] = ':'; buf[3] = ' ';
+    
+    if (display_ch > 9) {
+        buf[4] = '1';
+        buf[5] = '0' + (display_ch - 10);
     } else {
-        buf[0] = '\0';
+        buf[4] = '0';
+        buf[5] = '0' + display_ch;
     }
+    buf[6] = '\0';
 }
 
 static void set_frequency(const app_api_t *api, uint32_t freq_10hz) {
@@ -179,7 +151,10 @@ void app_main(const app_api_t *api) {
                 api->set_af(APP_AF_FM);
                 api->audio_path(true);
             } else {
-                current_channel = (current_channel + 1) % ASSET_PMR_CHANNELS;
+                current_channel++;
+                if (current_channel >= ASSET_PMR_CHANNELS) {
+                    current_channel = 0;
+                }
             }
         } else if (state == SCAN_IDLE) {
             signal_dbm = api->rssi_dbm();
