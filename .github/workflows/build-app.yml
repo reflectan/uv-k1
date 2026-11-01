@@ -17,10 +17,9 @@ jobs:
         run: |
           chmod +x compile-app.sh
           ./compile-app.sh pmrscan
-
+        
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: pmrscan-app
-          path: build/Apps/*.app
-          if-no-files-found: error
+          path: App/apps/pmrscan/*.app
