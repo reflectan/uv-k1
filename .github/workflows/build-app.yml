@@ -1,7 +1,4 @@
 - name: Compile App
     run: |
-      sudo apt-get update && sudo apt-get install -y dos2unix
-      dos2unix App/apps/pmrscan/build.sh
       chmod +x compile-app.sh
-      chmod +x App/apps/pmrscan/build.sh
       ./compile-app.sh pmrscan
