@@ -86,7 +86,7 @@ static void calibrate_noise_floor(const app_api_t *api, int16_t *noise_floor_out
     *noise_floor_out = noise_floor;
 }
 
-void app_main(const app_api_t *api) {
+__attribute__((section(".text.entry"))) void app_main(const app_api_t *api) {
     scan_state_t state = SCAN_IDLE;
     uint8_t current_channel = 0;
     uint8_t key, prev_key = 0;
