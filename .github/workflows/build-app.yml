@@ -1,4 +1,25 @@
-- name: Compile App
-    run: |
-      chmod +x compile-app.sh
-      ./compile-app.sh pmrscan
+name: Build PMR Scanner App
+
+on:
+  push:
+    paths:
+      - 'App/apps/pmrscan/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Compile App
+        run: |
+          chmod +x compile-app.sh
+          ./compile-app.sh pmrscan
+        
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmrscan-app
+          path: App/apps/pmrscan/*.app
